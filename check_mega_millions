@@ -1,0 +1,59 @@
+import csv
+import datetime
+import requests
+import pandas as pd
+
+# NY Lottery API JSON Feed for Mega Millions
+base_url = 'https://data.ny.gov/resource/5xaw-6ayf.json'
+
+# Make a GET request to the NY Lottery API to fetch the latest Mega Millions data
+response = requests.get(base_url)
+mega_millions1 = response.json()
+
+# Convert JSON data to a Pandas DataFrame
+mega_millions1_df = pd.json_normalize(mega_millions1)
+
+# Extract the most recent drawing's winning numbers and Mega Ball result
+latest_drawing = mega_millions1_df.iloc[0]
+winning_numbers = latest_drawing['winning_numbers'].split()
+mega_ball = int(latest_drawing['mega_ball'])
+
+# Request user input for their chosen Mega Millions numbers
+your_numbers = []
+print("Please enter your 5 chosen Mega Millions numbers (between 1 and 70):")
+for i in range(5):
+    number = int(input(f"Enter number {i+1}: "))
+    while number < 1 or number > 70 or number in your_numbers:
+        print("Invalid number. Please enter a unique number between 1 and 70.")
+        number = int(input(f"Enter number {i+1}: "))
+    your_numbers.append(number)
+
+# Request user input for their chosen Mega Ball number
+your_mega_ball = int(input("Please enter your Mega Ball number (between 1 and 25): "))
+while your_mega_ball < 1 or your_mega_ball > 25:
+    print("Invalid number. Please enter a number between 1 and 25.")
+    your_mega_ball = int(input("Please enter your Mega Ball number (between 1 and 25): "))
+
+# Compare your numbers against the winning numbers
+matching_numbers = list(set(your_numbers) & set(winning_numbers))
+matching_mega_ball = your_mega_ball == mega_ball
+
+# Provide an elegant response
+if len(matching_numbers) > 0 and matching_mega_ball:
+    print(f"Congratulations! You matched {len(matching_numbers)} number(s) and the Mega Ball!")
+elif len(matching_numbers) > 0:
+    print(f"You matched {len(matching_numbers)} number(s), but not the Mega Ball.")
+elif matching_mega_ball:
+    print("You matched the Mega Ball, but none of the main numbers.")
+else:
+    print("Unfortunately, you didn't match any numbers or the Mega Ball this time.")
+
+# Create a CSV file and write the data
+file_path = r'O:\_Data Analyst\lottery_logs\lottery_log2.csv'
+current_date = datetime.date.today().strftime('%Y-%m-%d')
+
+with open(file_path, 'a', newline='') as csvfile:
+    writer = csv.writer(csvfile)
+    writer.writerow([current_date, winning_numbers, your_numbers, matching_numbers, your_mega_ball, matching_mega_ball])
+
+print("Comparison and logging completed successfully.")
