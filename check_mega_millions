@@ -49,7 +49,7 @@ else:
     print("Unfortunately, you didn't match any numbers or the Mega Ball this time.")
 
 # Create a CSV file and write the data
-file_path = r'O:\_Data Analyst\lottery_logs\lottery_log2.csv'
+file_path = r'C:\********\*******\lottery_log2.csv'  ##Enter your local path here for your csv log
 current_date = datetime.date.today().strftime('%Y-%m-%d')
 
 with open(file_path, 'a', newline='') as csvfile:
